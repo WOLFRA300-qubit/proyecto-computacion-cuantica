@@ -1,4 +1,3 @@
-# proyecto-computacion-cuantica
 !pip install cirq matplotlib
 import cirq
 import numpy as np
@@ -188,3 +187,71 @@ print(circuit_initial)
 
 print("Circuito Final (con compuerta S):")
 print(circuit_final)
+# Instalamos Cirq si no está instalado
+!pip install cirq --quiet
+
+# Importamos las librerías necesarias
+import cirq
+import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+# Función para graficar la esfera de Bloch con el vector del qubit
+def plot_bloch_vector(bloch_vector, title="Estado del Qubit"):
+    fig = plt.figure(figsize=(6, 6))
+    ax = fig.add_subplot(111, projection='3d')
+
+    # Crear la esfera
+    u = np.linspace(0, 2 * np.pi, 100)
+    v = np.linspace(0, np.pi, 100)
+    x = np.outer(np.cos(u), np.sin(v))
+    y = np.outer(np.sin(u), np.sin(v))
+    z = np.outer(np.ones(np.size(u)), np.cos(v))
+
+    # Graficar la esfera
+    ax.plot_surface(x, y, z, color='lightblue', alpha=0.2, edgecolor='gray')
+
+    # Dibujar los ejes
+    ax.quiver(0, 0, 0, 1.2, 0, 0, color='r', linewidth=2)  # Eje X (rojo)
+    ax.quiver(0, 0, 0, 0, 1.2, 0, color='g', linewidth=2)  # Eje Y (verde)
+    ax.quiver(0, 0, 0, 0, 0, 1.2, color='b', linewidth=2)  # Eje Z (azul)
+
+    # Graficar el vector del estado del qubit
+    ax.quiver(0, 0, 0, bloch_vector[0], bloch_vector[1], bloch_vector[2], color='k', linewidth=3)
+
+    # Configuración del gráfico
+    ax.set_xlim([-1.2, 1.2])
+    ax.set_ylim([-1.2, 1.2])
+    ax.set_zlim([-1.2, 1.2])
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.set_zlabel('Z')
+    ax.set_title(title)
+    plt.show()
+
+# Creamos el qubit
+qubit = cirq.GridQubit(0, 0)
+
+# Creamos el circuito
+circuit = cirq.Circuit()
+
+# 1. Colocamos el qubit en una superposición usando Hadamard (estado |+⟩)
+circuit.append(cirq.H(qubit))
+
+# Simulamos el estado antes de la compuerta S
+simulator = cirq.Simulator()
+result_initial = simulator.simulate(circuit)
+bloch_vector_initial = cirq.bloch_vector_from_state_vector(result_initial.final_state_vector, index=0)
+
+# Graficamos el estado inicial
+plot_bloch_vector(bloch_vector_initial, title="Estado Inicial |+⟩ (Superposición)")
+
+# 2. Aplicamos la compuerta de fase S
+circuit.append(cirq.S(qubit))
+
+# Simulamos el estado después de la compuerta S
+result_phase = simulator.simulate(circuit)
+bloch_vector_phase = cirq.bloch_vector_from_state_vector(result_phase.final_state_vector, index=0)
+
+# Graficamos el estado después de la compuerta S
+plot_bloch_vector(bloch_vector_phase, title="Estado después de la Compuerta S")
